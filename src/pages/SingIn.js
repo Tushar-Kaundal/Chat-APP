@@ -2,13 +2,12 @@
 import Facebook from '@rsuite/icons/legacy/Facebook';
 import Google from '@rsuite/icons/legacy/Google';
 import {
-  getAuth,
   signInWithPopup,
   GoogleAuthProvider,
   FacebookAuthProvider,
   getAdditionalUserInfo,
 } from 'firebase/auth';
-import { getDatabase, ref, set, serverTimestamp } from 'firebase/database';
+import { ref, set, serverTimestamp } from 'firebase/database';
 import React from 'react';
 import {
   Button,
@@ -20,12 +19,11 @@ import {
   Row,
   toaster,
 } from 'rsuite';
-import { app } from '../misc/firebase';
+import { auth, db } from '../misc/firebase';
 
 const SingIn = () => {
   const signInWithProvider = async provider => {
     try {
-      const auth = getAuth(app);
       const { user, isNewUser } = await signInWithPopup(auth, provider).then(
         results => {
           return {
@@ -36,7 +34,6 @@ const SingIn = () => {
         }
       );
       if (isNewUser) {
-        const db = getDatabase();
         await set(ref(db, `/profiles/${user.uid}`), {
           username: user.displayName,
           createdAt: serverTimestamp(),
