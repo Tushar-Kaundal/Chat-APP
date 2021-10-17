@@ -11,7 +11,7 @@ const DashBoardToggle = () => {
   const onSignOut = useCallback(() => {
     auth.signOut();
     toaster.push(
-      <Message type="info" duration={4000}>
+      <Message showIcon type="info" duration={2000}>
         Signed Out
       </Message>
     );

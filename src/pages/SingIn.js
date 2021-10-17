@@ -40,13 +40,13 @@ const SingIn = () => {
         });
       }
       toaster.push(
-        <Message type="success" duration={4000}>
+        <Message showIcon type="success" duration={2000}>
           Signed in
         </Message>
       );
     } catch (err) {
       toaster.push(
-        <Message type="info" duration={4000}>
+        <Message showIcon type="info" duration={2000}>
           {err.message}
         </Message>
       );

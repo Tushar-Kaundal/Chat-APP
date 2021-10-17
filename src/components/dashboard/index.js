@@ -8,15 +8,15 @@ const DashBoard = ({ onSignOut }) => {
     <>
       <Drawer.Header>
         <Drawer.Title>Dashboard</Drawer.Title>
+        <Drawer.Actions>
+          <Button block color="red" appearance="primary" onClick={onSignOut}>
+            Sign out
+          </Button>
+        </Drawer.Actions>
       </Drawer.Header>
       <Drawer.Body>
         <h3>Hey,{profile.username}</h3>
       </Drawer.Body>
-      <Drawer.Actions>
-        <Button block color="red" appearance="primary" onClick={onSignOut}>
-          Sign out
-        </Button>
-      </Drawer.Actions>
     </>
   );
 };
