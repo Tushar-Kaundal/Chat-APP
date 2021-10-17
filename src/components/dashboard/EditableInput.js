@@ -45,7 +45,7 @@ const EditableInput = ({
         <Input
           {...inputProps}
           disabled={!isEditable}
-          placeholde={placeholder}
+          placeholder={placeholder}
           value={input}
           onChange={onInputChange}
         />
