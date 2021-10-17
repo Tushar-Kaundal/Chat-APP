@@ -32,11 +32,10 @@ const EditableInput = ({
           {emptyMsg}
         </Message>
       );
-    }
-
-    if (trimmed !== initialValue) {
+    } else if (trimmed !== initialValue) {
       await onSave(trimmed);
     }
+
     setIsEditable(false);
   };
   return (
