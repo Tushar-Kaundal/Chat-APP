@@ -246,3 +246,7 @@ $indent_3: 15px;
 .pb-3 {
   padding-bottom: $indent_3;
 }
+
+.box-sd-none:focus {
+  box-shadow: none;
+}

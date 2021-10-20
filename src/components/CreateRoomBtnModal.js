@@ -40,6 +40,7 @@ const CreateRoomBtnModal = () => {
       ...formValue,
       createdAt: serverTimestamp(),
     };
+
     try {
       await push(ref(db, `rooms`), newRoomdata);
       toaster.push(

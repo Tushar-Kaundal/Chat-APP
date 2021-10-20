@@ -14,6 +14,14 @@
         ".write": "auth.uid !== null"
       }
     },
+    "messages": {
+      ".read": "auth.uid !== null",
+      ".write": "auth.uid !== null",
+      "$message_id": {
+        ".read": "auth.uid !== null",
+        ".write": "auth.uid !== null"
+      }
+    },
     ".read": false,
     ".write": false
   }
