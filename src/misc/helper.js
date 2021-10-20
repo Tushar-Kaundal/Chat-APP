@@ -6,3 +6,10 @@ export function getNameInitials(name) {
 
   return splitName[0][0];
 }
+export function tramsformToArrWidthId(snapVal) {
+  return snapVal
+    ? Object.keys(snapVal).map(roomId => {
+        return { ...snapVal[roomId], id: roomId };
+      })
+    : [];
+}
