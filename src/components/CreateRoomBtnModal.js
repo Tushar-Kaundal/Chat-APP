@@ -3,7 +3,7 @@ import { Button, Form, Input, Message, Modal, Schema, toaster } from 'rsuite';
 import Creative from '@rsuite/icons/legacy/Creative';
 import { serverTimestamp, ref, push } from 'firebase/database';
 import { useModalState } from '../misc/custom-hooks';
-import { db } from '../misc/firebase';
+import { auth, db } from '../misc/firebase';
 
 const Textarea = React.forwardRef((props, Ref) => (
   <Input {...props} as="textarea" ref={Ref} />
@@ -39,6 +39,9 @@ const CreateRoomBtnModal = () => {
     const newRoomdata = {
       ...formValue,
       createdAt: serverTimestamp(),
+      admins: {
+        [auth.currentUser.uid]: true,
+      },
     };
 
     try {

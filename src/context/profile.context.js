@@ -49,7 +49,7 @@ export const ProfileProvider = ({ children }) => {
 
         onValue(ref(db, '.info/connected'), snapshot => {
           // If we're not currently connected, don't do anything.
-          if (snapshot.val() === false) {
+          if (!!snapshot.val() === false) {
             return;
           }
           // creating presence in realtime database
