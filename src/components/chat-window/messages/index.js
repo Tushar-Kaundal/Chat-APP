@@ -1,5 +1,6 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-param-reassign */
+import { moduleExpression } from '@babel/types';
 import {
   equalTo,
   onValue,
@@ -9,36 +10,84 @@ import {
   off,
   runTransaction,
   update,
+  limitToLast,
 } from 'firebase/database';
 import { ref as stgRef, deleteObject } from 'firebase/storage';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
-import { toaster, Message as Mess } from 'rsuite';
+import { toaster, Message as Mess, Button } from 'rsuite';
 import { auth, db, storage } from '../../../misc/firebase';
-import { tramsformToArrWidthId } from '../../../misc/helper';
+import { groupBy, tramsformToArrWidthId } from '../../../misc/helper';
 import MessageItem from './MessageItem';
+
+const messageRef = ref(db, '/messages');
+const PAGE_SIZE = 15;
+
+function shouldScrollToBottom(node, threshold = 30) {
+  const percentage =
+    (100 * node.scrollTop) / (node.scrollHeight - node.clientHeight) || 0;
+
+  return percentage > threshold;
+}
 
 const Message = () => {
   const { chatId } = useParams();
   const [messages, setMessage] = useState([]);
+  const [limit, setLimit] = useState(PAGE_SIZE);
+  const selfRef = useRef();
 
   const isChatEmpty = messages && messages.length === 0;
   const canShowMessages = messages && messages.length > 0;
 
-  useEffect(() => {
-    const messageRef = ref(db, '/messages');
-    onValue(
-      query(messageRef, orderByChild('roomId'), equalTo(chatId)),
-      snap => {
-        const data = tramsformToArrWidthId(snap.val());
+  const loadMessages = useCallback(
+    limitLast => {
+      const node = selfRef.current;
+      off(messageRef);
+      onValue(
+        query(
+          messageRef,
+          orderByChild('roomId'),
+          equalTo(chatId),
+          limitToLast(limitLast || PAGE_SIZE)
+        ),
+        snap => {
+          const data = tramsformToArrWidthId(snap.val());
 
-        setMessage(data);
-      }
-    );
+          setMessage(data);
+
+          if (shouldScrollToBottom(node)) {
+            node.scrollTop = node.scrollHeight;
+          }
+        }
+      );
+      setLimit(p => p + PAGE_SIZE);
+    },
+    [chatId]
+  );
+
+  const onLoadMore = useCallback(() => {
+    const node = selfRef.current;
+    const oldHeight = node.scrollHeight;
+    loadMessages(limit);
+    setTimeout(() => {
+      const newHeight = node.scrollHeight;
+      node.scrollTop = newHeight - oldHeight;
+    }, 200);
+  }, [loadMessages, limit]);
+
+  useEffect(() => {
+    const node = selfRef.current;
+
+    loadMessages();
+
+    setTimeout(() => {
+      node.scrollTop = node.scrollHeight;
+    }, 200);
+
     return () => {
       off(messageRef, 'value');
     };
-  }, [chatId]);
+  }, [loadMessages]);
 
   const handleAdmin = useCallback(
     async uid => {
@@ -157,19 +206,46 @@ const Message = () => {
     },
     [chatId, messages]
   );
+  const renderMessages = () => {
+    const groups = groupBy(messages, item =>
+      new Date(item.createdAt).toDateString()
+    );
+
+    const items = [];
+
+    Object.keys(groups).forEach(date => {
+      items.push(
+        <li key={date} className="text-center mb-1 padded">
+          {date}
+        </li>
+      );
+
+      const msgs = groups[date].map(msg => (
+        <MessageItem
+          key={msg.id}
+          message={msg}
+          handleAdmin={handleAdmin}
+          handleLike={handleLike}
+          handleDelete={handleDelete}
+        />
+      ));
+
+      items.push(...msgs);
+    });
+
+    return items;
+  };
   return (
-    <ul className="msg-list custom-scroll">
+    <ul ref={selfRef} className="msg-list custom-scroll">
+      {messages && messages.length >= PAGE_SIZE && (
+        <li className="text-center mt-2 mb-2">
+          <Button onClick={onLoadMore} color="green" appearance="primary">
+            Load more
+          </Button>
+        </li>
+      )}
       {isChatEmpty && <li>No Messages yet</li>}
-      {canShowMessages &&
-        messages.map(msg => (
-          <MessageItem
-            key={msg.id}
-            message={msg}
-            handleAdmin={handleAdmin}
-            handleLike={handleLike}
-            handleDelete={handleDelete}
-          />
-        ))}
+      {canShowMessages && renderMessages()}
     </ul>
   );
 };
