@@ -17,7 +17,7 @@
     "messages": {
       ".read": "auth.uid !== null",
       ".write": "auth.uid !== null",
-      ".indexOn": "author/uid",
+      ".indexOn": ["author/uid", "roomId"],
       "$message_id": {
         ".read": "auth.uid !== null",
         ".write": "auth.uid !== null"

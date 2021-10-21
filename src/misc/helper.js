@@ -20,7 +20,7 @@ export async function getUserUpdates(userId, keyToUpdate, value, db) {
   const updates = {};
 
   updates[`/profiles/${userId}/${keyToUpdate}`] = value;
-  const getRooms = await get(
+  const getRooms = get(
     query(
       ref(db, `/rooms`),
       orderByChild(`lastMessage/author/uid`),
@@ -28,7 +28,7 @@ export async function getUserUpdates(userId, keyToUpdate, value, db) {
     )
   );
 
-  const getMsgs = await get(
+  const getMsgs = get(
     query(ref(db, '/messages'), orderByChild(`author/uid`), equalTo(userId))
   );
 
@@ -40,6 +40,6 @@ export async function getUserUpdates(userId, keyToUpdate, value, db) {
   rSnap.forEach(roomSnap => {
     updates[`/rooms/${roomSnap.key}/lastMessage/author/${keyToUpdate}`] = value;
   });
-  console.log(updates);
+
   return updates;
 }

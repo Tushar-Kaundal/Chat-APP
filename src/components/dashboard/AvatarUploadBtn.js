@@ -65,7 +65,6 @@ const AvatarUploadBtn = () => {
         cacheControl: `public, max-age=${3600 * 24 * 3}`,
       });
       const downloadUrl = await getDownloadURL(uploadAvatarResult.ref);
-      console.log(downloadUrl);
       const updates = await getUserUpdates(
         profile.uid,
         'avatar',
