@@ -1,5 +1,5 @@
 import { ref as stgref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { ref as dbref, set, child } from 'firebase/database';
+import { ref as dbref, update } from 'firebase/database';
 import React, { useRef, useState } from 'react';
 import AvatarEditor from 'react-avatar-editor';
 import { Button, Message, Modal, toaster } from 'rsuite';
@@ -11,6 +11,7 @@ import { useProfile } from '../../context/profile.context';
 import { useModalState } from '../../misc/custom-hooks';
 import { db, storage } from '../../misc/firebase';
 import ProfileAvatar from './ProfileAvatar';
+import { getUserUpdates } from '../../misc/helper';
 
 const fileInputTypes = '.png, .jpeg, .jpg';
 const acceptedFileTypes = ['image/png', 'image/jpeg', 'image/jpg'];
@@ -64,11 +65,14 @@ const AvatarUploadBtn = () => {
         cacheControl: `public, max-age=${3600 * 24 * 3}`,
       });
       const downloadUrl = await getDownloadURL(uploadAvatarResult.ref);
-      const userAvatarRef = child(
-        dbref(db, `/profiles/${profile.uid}`),
-        'avatar'
+      console.log(downloadUrl);
+      const updates = await getUserUpdates(
+        profile.uid,
+        'avatar',
+        downloadUrl,
+        db
       );
-      set(userAvatarRef, downloadUrl);
+      await update(dbref(db), updates);
       setIsLoading(false);
       toaster.push(
         <Message showIcon type="info" closable duration={2000}>
@@ -131,7 +135,7 @@ const AvatarUploadBtn = () => {
               block
               appearance="ghost"
               onClick={onUploadClick}
-              disabled={isLoading}
+              loading={isLoading}
             >
               Upload new avatar
             </Button>

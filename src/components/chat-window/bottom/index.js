@@ -9,13 +9,13 @@ import { db } from '../../../misc/firebase';
 const assembleMessage = (profile, chatId) => {
   return {
     roomId: chatId,
+    createdAt: serverTimestamp(),
     author: {
-      name: profile.username,
+      username: profile.username,
       uid: profile.uid,
       createdAt: profile.createdAt,
       ...(profile.avatar ? { avatar: profile.avatar } : {}),
     },
-    createdAt: serverTimestamp(),
   };
 };
 

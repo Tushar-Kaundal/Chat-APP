@@ -21,12 +21,12 @@ const RoomItem = ({ room }) => {
             <div className="d-flex align-items-center">
               <ProfileAvatar
                 src={lastMessage.author.avatar}
-                name={lastMessage.author.name}
+                name={lastMessage.author.username}
                 size="sm"
               />
             </div>
             <div className="text-disappear ml-2">
-              <div className="italic">{lastMessage.author.name}</div>
+              <div className="italic">{lastMessage.author.username}</div>
               <span>{lastMessage.text}</span>
             </div>
           </>

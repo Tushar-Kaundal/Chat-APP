@@ -1,8 +1,9 @@
-import { ref, child, set } from 'firebase/database';
+import { ref, update } from 'firebase/database';
 import React from 'react';
 import { Button, Divider, Drawer, Message, toaster } from 'rsuite';
 import { useProfile } from '../../context/profile.context';
 import { db } from '../../misc/firebase';
+import { getUserUpdates } from '../../misc/helper';
 import AvatarUploadBtn from './AvatarUploadBtn';
 import EditableInput from './EditableInput';
 import ProviderBlock from './ProviderBlock';
@@ -10,20 +11,22 @@ import ProviderBlock from './ProviderBlock';
 const DashBoard = ({ onSignOut }) => {
   const { profile } = useProfile();
   const onSave = async newData => {
-    const userNicknameRef = child(
-      ref(db, `/profiles/${profile.uid}`),
-      `username`
-    );
+    // const userNicknameRef = child(
+    //   ref(db, `/profiles/${profile.uid}`),
+    //   `username`
+    // );
     try {
-      await set(userNicknameRef, newData);
+      // await set(userNicknameRef, newData);
+      const data = await getUserUpdates(profile.uid, 'username', newData, db);
+      await update(ref(db), data);
       toaster.push(
-        <Message showIcon type="success" duration={2000}>
+        <Message showIcon type="success" duration={4000}>
           Nickname has been updated
         </Message>
       );
     } catch (err) {
       toaster.push(
-        <Message showIcon type="error" duration={2000}>
+        <Message showIcon type="error" duration={4000}>
           {err.message}
         </Message>
       );
