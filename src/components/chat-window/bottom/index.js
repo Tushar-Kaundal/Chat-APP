@@ -16,6 +16,7 @@ const assembleMessage = (profile, chatId) => {
       createdAt: profile.createdAt,
       ...(profile.avatar ? { avatar: profile.avatar } : {}),
     },
+    likeCount: 0,
   };
 };
 

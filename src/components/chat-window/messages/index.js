@@ -7,11 +7,12 @@ import {
   ref,
   off,
   runTransaction,
+  update,
 } from 'firebase/database';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { toaster, Message as Mess } from 'rsuite';
-import { db } from '../../../misc/firebase';
+import { auth, db } from '../../../misc/firebase';
 import { tramsformToArrWidthId } from '../../../misc/helper';
 import MessageItem from './MessageItem';
 
@@ -66,12 +67,94 @@ const Message = () => {
     [chatId]
   );
 
+  const handleLike = useCallback(async msgId => {
+    const { uid } = auth.currentUser;
+    const msgRef = ref(db, `/messages/${msgId}`);
+
+    let alertMsg;
+
+    await runTransaction(msgRef, msg => {
+      if (msg) {
+        if (msg.likes && msg.likes[uid]) {
+          msg.likeCount -= 1;
+          msg.likes[uid] = null;
+          alertMsg = 'Like removed';
+        } else {
+          msg.likeCount += 1;
+
+          if (!msg.likes) {
+            msg.likes = {};
+          }
+
+          msg.likes[uid] = true;
+          alertMsg = 'Like added';
+        }
+      }
+
+      return msg;
+    });
+
+    toaster.push(
+      <Mess showIcon type="info" duration={4000} closable>
+        {alertMsg}
+      </Mess>
+    );
+  }, []);
+
+  const handleDelete = useCallback(
+    async msgId => {
+      // eslint-disable-next-line no-alert
+      if (!window.confirm('Delete this message?')) {
+        return;
+      }
+
+      const isLast = messages[messages.length - 1].id === msgId;
+
+      const updates = {};
+
+      updates[`/messages/${msgId}`] = null;
+
+      if (isLast && messages.length > 1) {
+        updates[`/rooms/${chatId}/lastMessage`] = {
+          ...messages[messages.length - 2],
+          msgId: messages[messages.length - 2].id,
+        };
+      }
+
+      if (isLast && messages.length === 1) {
+        updates[`/rooms/${chatId}/lastMessage`] = null;
+      }
+
+      try {
+        await update(ref(db), updates);
+
+        toaster.push(
+          <Mess showIcon type="info" duration={2000} closable>
+            Message has been deleted
+          </Mess>
+        );
+      } catch (err) {
+        toaster.push(
+          <Mess showIcon type="error" duration={2000} closable>
+            {err.message}
+          </Mess>
+        );
+      }
+    },
+    [chatId, messages]
+  );
   return (
     <ul className="msg-list custom-scroll">
       {isChatEmpty && <li>No Messages yet</li>}
       {canShowMessages &&
         messages.map(msg => (
-          <MessageItem key={msg.id} message={msg} handleAdmin={handleAdmin} />
+          <MessageItem
+            key={msg.id}
+            message={msg}
+            handleAdmin={handleAdmin}
+            handleLike={handleLike}
+            handleDelete={handleDelete}
+          />
         ))}
     </ul>
   );
