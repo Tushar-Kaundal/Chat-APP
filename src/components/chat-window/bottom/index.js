@@ -5,6 +5,8 @@ import Send from '@rsuite/icons/legacy/Send';
 import { serverTimestamp, ref, push, update } from 'firebase/database';
 import { useProfile } from '../../../context/profile.context';
 import { db } from '../../../misc/firebase';
+import AttachmentBtnModal from './AttachmentBtnModal';
+import AudioMsgBtn from './AudioMsgBtn';
 
 const assembleMessage = (profile, chatId) => {
   return {
@@ -70,9 +72,48 @@ const Bottom = () => {
     }
   };
 
+  const afterUpload = useCallback(
+    async files => {
+      setIsLoading(true);
+
+      const updates = {};
+
+      files.forEach(file => {
+        const msgData = assembleMessage(profile, chatId);
+        msgData.file = file;
+
+        const messageId = push(ref(db, 'messages')).key;
+
+        updates[`/messages/${messageId}`] = msgData;
+      });
+
+      const lastMsgId = Object.keys(updates).pop();
+
+      updates[`/rooms/${chatId}/lastMessage`] = {
+        ...updates[lastMsgId],
+        msgId: lastMsgId,
+      };
+
+      try {
+        await update(ref(db), updates);
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+        toaster.push(
+          <Message type="error" showIcon closable duration={2000}>
+            {err.message}
+          </Message>
+        );
+      }
+    },
+    [chatId, profile]
+  );
+
   return (
     <div>
       <InputGroup>
+        <AttachmentBtnModal afterUpload={afterUpload} />
+        <AudioMsgBtn afterUpload={afterUpload} />
         <Input
           placeholder="write a new message"
           value={input}

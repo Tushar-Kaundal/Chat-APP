@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-param-reassign */
 import {
   equalTo,
@@ -9,10 +10,11 @@ import {
   runTransaction,
   update,
 } from 'firebase/database';
+import { ref as stgRef, deleteObject } from 'firebase/storage';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { toaster, Message as Mess } from 'rsuite';
-import { auth, db } from '../../../misc/firebase';
+import { auth, db, storage } from '../../../misc/firebase';
 import { tramsformToArrWidthId } from '../../../misc/helper';
 import MessageItem from './MessageItem';
 
@@ -102,7 +104,7 @@ const Message = () => {
   }, []);
 
   const handleDelete = useCallback(
-    async msgId => {
+    async (msgId, file) => {
       // eslint-disable-next-line no-alert
       if (!window.confirm('Delete this message?')) {
         return;
@@ -134,11 +136,23 @@ const Message = () => {
           </Mess>
         );
       } catch (err) {
-        toaster.push(
+        return toaster.push(
           <Mess showIcon type="error" duration={2000} closable>
             {err.message}
           </Mess>
         );
+      }
+      if (file) {
+        try {
+          const fileRef = stgRef(storage, file.url);
+          await deleteObject(fileRef);
+        } catch (err) {
+          toaster.push(
+            <Message type="error" showIcon duration={2000} closable>
+              {err.message}
+            </Message>
+          );
+        }
       }
     },
     [chatId, messages]
