@@ -20,6 +20,7 @@ import {
   toaster,
 } from 'rsuite';
 import { auth, db } from '../misc/firebase';
+import PageLayout from './PageLayout';
 
 const SingIn = () => {
   const signInWithProvider = async provider => {
@@ -59,38 +60,42 @@ const SingIn = () => {
     signInWithProvider(new GoogleAuthProvider());
   };
   return (
-    <Container>
-      <Grid className="mt-page">
-        <Row>
-          <Col xs={24} md={12} mdOffset={6}>
-            <Panel>
-              <div className="text-center">
-                <h2>Welcome to Chat</h2>
-                <p>Progressive chat platform for neophytes</p>
-              </div>
-              <div className="mt-3">
-                <Button
-                  block
-                  color="blue"
-                  appearance="primary"
-                  onClick={onFacebookSignIn}
-                >
-                  <Facebook /> Continue with Facebook
-                </Button>
-                <Button
-                  block
-                  color="red"
-                  appearance="primary"
-                  onClick={onGoogleSignIN}
-                >
-                  <Google /> Continue with Google
-                </Button>
-              </div>
-            </Panel>
-          </Col>
-        </Row>
-      </Grid>
-    </Container>
+    <PageLayout>
+      <Container>
+        <Grid className="mt-page">
+          <Row>
+            <Col xs={24} md={12} mdOffset={6}>
+              <Panel
+                style={{ backgroundColor: 'rgba(0,0,0,0.4)', color: 'white' }}
+              >
+                <div className="text-center">
+                  <h2>Welcome to Chat</h2>
+                  <p>Progressive chat platform </p>
+                </div>
+                <div className="mt-3">
+                  <Button
+                    block
+                    color="blue"
+                    appearance="primary"
+                    onClick={onFacebookSignIn}
+                  >
+                    <Facebook /> Continue with Facebook
+                  </Button>
+                  <Button
+                    block
+                    color="red"
+                    appearance="primary"
+                    onClick={onGoogleSignIN}
+                  >
+                    <Google /> Continue with Google
+                  </Button>
+                </div>
+              </Panel>
+            </Col>
+          </Row>
+        </Grid>
+      </Container>
+    </PageLayout>
   );
 };
 

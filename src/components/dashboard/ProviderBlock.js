@@ -16,10 +16,10 @@ const ProviderBlock = () => {
       data => data.providerId === 'google.com'
     ),
     'facebook.com': auth.currentUser.providerData.some(
-      data => data.providerId === 'faceboook.com'
+      data => data.providerId === 'facebook.com'
     ),
   });
-
+  console.log(isConnected);
   const updateIsConnected = (providerId, value) => {
     setIsConnected(p => {
       return {

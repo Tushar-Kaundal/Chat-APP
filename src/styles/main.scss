@@ -11,6 +11,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   background-color: #fcfcfc;
+  overflow: hidden;
 }
 
 html,
@@ -32,6 +33,12 @@ body,
   &::-webkit-scrollbar-thumb {
     background: darken(#ddd, 20%);
   }
+}
+
+.bck-img {
+  background: url('https://firebasestorage.googleapis.com/v0/b/chat-web-app-acdc9.appspot.com/o/bck1.jpg?alt=media&token=78af7f13-82bb-4c42-b2ab-9ee77a97e8d7');
+  background-position: center;
+  background-size: cover;
 }
 
 .img-fullsize {
